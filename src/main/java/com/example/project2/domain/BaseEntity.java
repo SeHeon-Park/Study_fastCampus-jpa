@@ -6,6 +6,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import javax.persistence.Column;
 import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
@@ -15,8 +16,10 @@ import java.time.LocalDateTime;
 @EntityListeners(value = AuditingEntityListener.class)  // 기본적으로 제공 Listener 클래스 받기
 public class BaseEntity implements Auditable {
     @CreatedDate
+    @Column(columnDefinition = "datetime(6) default now(6) comment '생성시간'", nullable = false, updatable = false)
     private LocalDateTime createAt;
 
     @LastModifiedDate
+    @Column(columnDefinition = "datetime(6) default now(6) comment '생성시간'",  nullable = false)
     private LocalDateTime updateAt;
 }

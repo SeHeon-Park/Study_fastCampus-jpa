@@ -1,6 +1,7 @@
-package com.example.project2.domain.service;
+package com.example.project2.service;
 
 import com.example.project2.domain.Book;
+import com.example.project2.domain.service.BookService;
 import com.example.project2.repository.AuthorRepository;
 import com.example.project2.repository.BookRepository;
 import org.junit.jupiter.api.Test;
@@ -39,7 +40,11 @@ class BookServiceTest {
         bookService.get(1L);
 
         System.out.println(">>> " + bookRepository.findAll());
+    }
 
-      
+    @Test
+    void converterErrorTest(){
+        bookService.getAll();
+        bookRepository.findAll().forEach(System.out::println);
     }
 }

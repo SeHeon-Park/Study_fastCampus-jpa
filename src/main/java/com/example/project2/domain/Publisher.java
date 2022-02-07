@@ -21,6 +21,14 @@ public class Publisher extends BaseEntity{
 
     private String name;
 
-    @OneToMany(mappedBy = "publisher")
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL) // cascade와 공통점: 상위객체가 delete되면 하위객체까지 delete됨
+                                                                // false(default): set null과 같이 단순히 연관관계만 끊어줌 , true: 필요 없어진(연관 관계 끊어진) 객체 제거
+
+    @JoinColumn(name = "publisher_id")
+    @ToString.Exclude
     private List<Book> books = new ArrayList<>();
+
+    public void addBook(Book book){
+        this.books.add(book);
+    }
 }

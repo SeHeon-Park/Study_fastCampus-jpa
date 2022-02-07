@@ -1,5 +1,6 @@
 package com.example.project2.repository;
 
+import com.example.project2.domain.Address;
 import com.example.project2.domain.Gender;
 import com.example.project2.domain.User;
 import com.example.project2.domain.UserHistory;
@@ -12,10 +13,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.*;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.AbstractSoftAssertions.assertAll;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.contains;
 import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.endsWith;
 
@@ -26,7 +30,8 @@ class UserRepositoryTest {
     private UserRepository userRepository;
     @Autowired
     private UserHistoryRepository userHistoryRepository;
-
+    @Autowired
+    private EntityManager entityManager;
 
     /** ch2-Repository Interface method **/
     @Test
@@ -244,6 +249,45 @@ class UserRepositoryTest {
         List<UserHistory> result = userRepository.findByEmail("Daniel@naver.com").getUserHistories();
         result.forEach(System.out::println);
         System.out.println("UserHistory.getUser(): " + userHistoryRepository.findAll().get(0).getUser());
+    }
+
+    /** ch10-임베디드 타입 활용 **/
+    @Test
+    void embedTest(){
+        userRepository.findAll().forEach(System.out::println);
+
+        User user = new User();
+        user.setName("steve");
+        user.setHomeAddress(new Address("서울시", "강남구", "강남대로 364 미왕빌딩", "06214"));
+        user.setCompanyAddress((new Address("서울시", "성동구", "성수이로 113 제강빌딩", "04794")));
+
+        userRepository.save(user);
+
+        User user1 = new User();
+        user1.setName("Joshua");
+        user1.setHomeAddress(null);            // Address자체가 null(이것도 근데 결국 안에도 null)
+        user1.setCompanyAddress(null);
+
+        userRepository.save(user1);
+
+        User user2 = new User();
+        user2.setName("Jordan");
+        user2.setHomeAddress(new Address());    // Address안 내용 각각이 null
+        user2.setCompanyAddress(new Address());
+
+        userRepository.save(user2);
+
+        entityManager.clear();
+
+        userRepository.findAll().forEach(System.out::println);
+        userHistoryRepository.findAll().forEach(System.out::println);
+
+        userRepository.findAllRawRecord().forEach(a -> System.out.println(a.values()));
+
+//        assertAll(
+//                () -> assertThat(userRepository.findById(7L).get().getHomeAddress()).isNull(),
+//                () -> assertThat(userRepository.findById(8L).get().getHomeAddress()).isInstanceOf(Address.class)
+//        );
     }
 
 }

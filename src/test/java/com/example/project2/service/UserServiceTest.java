@@ -1,5 +1,6 @@
-package com.example.project2.domain.service;
+package com.example.project2.service;
 
+import com.example.project2.domain.service.UserService;
 import com.example.project2.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

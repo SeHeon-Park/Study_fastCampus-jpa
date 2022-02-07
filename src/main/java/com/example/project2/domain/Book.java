@@ -1,11 +1,14 @@
 package com.example.project2.domain;
 
+import com.example.project2.domain.converter.BookStatusConverter;
 import com.example.project2.domain.listener.Auditable;
+import com.example.project2.repository.dto.BookStatus;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Where;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -21,6 +24,7 @@ import java.util.List;
 @Data
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
+@Where(clause = "deleted = false")
 //@DynamicUpdate   // 실제 값이 변경된 컬럼으로만 update 쿼리를 만드는 기능
 public class Book extends BaseEntity{
     @Id
@@ -39,8 +43,7 @@ public class Book extends BaseEntity{
     @ToString.Exclude
     private List<Review> reviews = new ArrayList<>();
 
-    @ManyToOne
-    @JoinColumn(name = "publisher_id")
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})  // Book이 persist/merge/remove가 될때 Publisher도 persist/merge/remove 된다!(ALL은 전부다!)
     @ToString.Exclude
     private Publisher publisher;
 
@@ -50,6 +53,10 @@ public class Book extends BaseEntity{
     @ToString.Exclude
     private List<BookAndAuthor> bookAndAuthors = new ArrayList<>();
 
+    private boolean deleted; // true: 지워짐, false: 안지워짐
+
+//    @Convert(converter = BookStatusConverter.class)
+    private BookStatus status; // 판매상태
 
     public void addBookAndAuthors(BookAndAuthor... bookAndAuthor){
         Collections.addAll(this.bookAndAuthors, bookAndAuthor);

@@ -12,10 +12,12 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import java.util.List;
 
 
 @Service
 @RequiredArgsConstructor
+@Transactional  // 각각 메소드에 transaction 적용(둘다 있으면 메소드가 우선순위 높음)
 public class BookService {
 
     private final BookRepository bookRepository;
@@ -65,6 +67,15 @@ public class BookService {
 //        Book book  = bookRepository.findById(id).get();
 //        book.setName("바뀔까?");
 //        bookRepository.save(book);
+    }
+
+    @Transactional
+    public List<Book> getAll(){
+        List<Book> books = bookRepository.findAll();
+
+        books.forEach(System.out::println);
+
+        return books;
     }
 
 }

@@ -59,4 +59,7 @@ public interface UserRepository extends JpaRepository<User, Long>{
     /** enum 확인 **/
     @Query(value = "select * from user limit 1", nativeQuery = true) // limit: 제한하고 싶은 개수
     Map<String, Object> findRowRecord();  // 결과값이 Map에 저장
+
+    @Query(value = "select * from user", nativeQuery = true)
+    List<Map<String, Object>> findAllRawRecord();
 }

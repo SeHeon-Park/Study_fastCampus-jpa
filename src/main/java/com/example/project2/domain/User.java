@@ -40,10 +40,41 @@ public class User extends BaseEntity{
                                          //안해주면 EnumType이 ORDINAL이라 "0"이나옴
     private Gender gender;
 
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "city", column = @Column(name = "home_city")),
+            @AttributeOverride(name = "district", column = @Column(name = "home_district")),
+            @AttributeOverride(name = "detail", column = @Column(name = "home_address_detail")),
+            @AttributeOverride(name = "zipCode", column = @Column(name = "home_zip_code"))
+    })
+    private Address homeAddress;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "city", column = @Column(name = "company_city")),
+            @AttributeOverride(name = "district", column = @Column(name = "company_district")),
+            @AttributeOverride(name = "detail", column = @Column(name = "company_address_detail")),
+            @AttributeOverride(name = "zipCode", column = @Column(name = "company_zip_code"))
+    })
+    private Address companyAddress;
+
+     /**
+         - 프록시 객체는 실제 사용될 때 데이터베이스에서 조회하여 엔티티 객체를 생성하는데 이를 프록시 초기화라고 한다.
+           프록시 초기화는 영속성 컨텍스트의 도움을 받아야 가능하다. 그런데 이미 member를 조회한 후에는 영속성 컨텍스트를 종료한 후이므로 도움을 받을 수가 없어
+           LazyInitializationException 예외를 발생시킨다.
+         - session: 영속성 컨텍스트가 entity를 관리하고 있는 생명주기
+         - lazy fetch는 session이 존재할때 만 데이터를 받아 올수 있음
+         해결:
+         1) @Transactional 붙이기
+            - JpaRepository 공통 메소드를 사용하는 서비스 계층에서 트랜젝션을 시작하면 JpaRepository도 해당 트랜젝션을 전파받아서 그대로 사용한다. 즉, 지연조회 시점까지 세션을 유지할 수 있다
+         2) eager fetch로 바꿔서 조회시점에서 다 받아와버리기
+     **/
+
+
+    @OneToMany(fetch = FetchType.EAGER)  // 즉시로딩: 엔티티 매니저를 통해 엔티티를 조회하면 연관관계에 매핑되어 있는 엔티티도 함께 조회
+                                         // 지연로딩: FetchType.LAZY, 연관관계에 매핑되어 있는 엔티티를 실제 사용할 때 조회(get)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)     // Entity가 어떤 컬럼으로 조인 될지 지정해줌
-                                  // User에서 UserHistory가 저장x, 수정x
+                                                                             // User에서 UserHistory가 저장x, 수정x
     @ToString.Exclude
     private List<UserHistory> userHistories = new ArrayList<>();
 
